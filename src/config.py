@@ -109,42 +109,96 @@ DATASETS_DISPONIBLES = {
 # Dataset par défaut
 DATASET_PAR_DEFAUT = "synthetique"
 
-# ─── Paramètres du modèle ────────────────────────────────────────────────────
+# ─── Liste complète des modèles disponibles ──────────────────────────────────
 
-# Type de modèle : "random_forest", "svm", "knn", "gradient_boosting"
+# Modèles supportés par le projet
+LISTE_MODELES = [
+    "decision_tree",
+    "random_forest",
+    "logistic_regression",
+    "svm",
+    "knn",
+    "naive_bayes",
+]
+
+# Type de modèle par défaut
 TYPE_MODELE = "random_forest"
 
-# Paramètres du Random Forest
+# ─── Paramètres de chaque modèle ─────────────────────────────────────────────
+
+# Chaque dictionnaire contient les hyperparamètres recommandés
+# pour la détection d'intrusions réseau.
+
+# Decision Tree : arbre de décision simple, rapide et interprétable
+# Avantage : facile à comprendre et à visualiser
+# Inconvénient : peut surapprendre facilement
+PARAMS_DECISION_TREE = {
+    "max_depth": 20,             # Profondeur max pour éviter le surapprentissage
+    "min_samples_split": 5,      # Échantillons min pour diviser un noeud
+    "min_samples_leaf": 2,       # Échantillons min dans une feuille
+    "criterion": "gini",         # Critère de division (gini ou entropy)
+    "random_state": SEED_ALEATOIRE,
+}
+
+# Random Forest : ensemble d'arbres de décision, robuste et fiable
+# Avantage : excellent compromis performance / interprétabilité
+# Inconvénient : plus lent qu'un seul arbre
 PARAMS_RANDOM_FOREST = {
-    "n_estimators": 100,         # Nombre d'arbres
+    "n_estimators": 100,         # Nombre d'arbres dans la forêt
     "max_depth": 20,             # Profondeur maximale
     "min_samples_split": 5,      # Échantillons minimum pour diviser
     "min_samples_leaf": 2,       # Échantillons minimum par feuille
     "random_state": SEED_ALEATOIRE,
-    "n_jobs": -1,                # Utiliser tous les CPU disponibles
+    "n_jobs": 1,                 # Nombre de CPU (1 = stable sur toutes les plates-formes)
 }
 
-# Paramètres du SVM
+# Logistic Regression : modèle linéaire simple et rapide
+# Avantage : très rapide, probabilités bien calibrées
+# Inconvénient : suppose une relation linéaire, limite en haute dimension
+PARAMS_LOGISTIC_REGRESSION = {
+    "C": 1.0,                    # Inverse de la régularisation (1.0 = défaut)
+    "penalty": "l2",             # Régularisation L2 (ridge)
+    "solver": "lbfgs",          # Algorithme d'optimisation
+    "max_iter": 1000,            # Nombre max d'itérations pour converger
+    "random_state": SEED_ALEATOIRE,
+}
+
+# SVM : machine à vecteurs de support, performante en haute dimension
+# Avantage : efficace quand les classes sont bien séparées
+# Inconvénient : long à entraîner, pas de probas natives
 PARAMS_SVM = {
-    "kernel": "rbf",
-    "C": 1.0,
-    "gamma": "scale",
+    "kernel": "rbf",             # Noyau radial (bon pour données non linéaires)
+    "C": 1.0,                    # Pénalité d'erreur
+    "gamma": "scale",            # Portée du noyau (scale = auto adapté)
+    "probability": True,          # Activer predict_proba (légèrement plus lent)
     "random_state": SEED_ALEATOIRE,
 }
 
-# Paramètres du KNN
+# KNN : K plus proches voisins, basé sur la proximité des échantillons
+# Avantage : simple, non paramétrique, s'adapte à la forme des données
+# Inconvénient : lent en prédiction, sensible aux échelles
 PARAMS_KNN = {
-    "n_neighbors": 5,
-    "weights": "distance",
-    "n_jobs": -1,
+    "n_neighbors": 5,            # Nombre de voisins
+    "weights": "distance",       # Pondération par la distance
+    "metric": "euclidean",       # Distance euclidienne
+    "n_jobs": 1,                 # Nombre de CPU (1 = stable sur toutes les plates-formes)
 }
 
-# Paramètres du Gradient Boosting
-PARAMS_GRADIENT_BOOSTING = {
-    "n_estimators": 100,
-    "max_depth": 5,
-    "learning_rate": 0.1,
-    "random_state": SEED_ALEATOIRE,
+# Naive Bayes : classifieur bayésien simple et très rapide
+# Avantage : extrêmement rapide, fonctionne avec peu de données
+# Inconvénient : suppose l'indépendance des caractéristiques (souvent fausse)
+PARAMS_NAIVE_BAYES = {
+    "var_smoothing": 1e-9,       # Lissage pour éviter les divisions par zéro
+}
+
+# Description de chaque modèle (affichée dans les résumés)
+DESCRIPTION_MODELES = {
+    "decision_tree": "Arbre de décision - Rapide et interprétable",
+    "random_forest": "Forêt aléatoire - Robuste et fiable",
+    "logistic_regression": "Régression logistique - Simple et rapide",
+    "svm": "SVM - Performant en haute dimension",
+    "knn": "KNN - Basé sur la proximité des voisins",
+    "naive_bayes": "Naive Bayes - Très rapide, probabiliste",
 }
 
 # ─── Colonnes du dataset (générique) ─────────────────────────────────────────

@@ -28,6 +28,8 @@ from joblib import dump, load
 
 from src.config import (
     TYPE_MODELE,
+    LISTE_MODELES,
+    DESCRIPTION_MODELES,
     DOSSIER_DATA_TRANSFORME,
     DOSSIER_DATASETS,
     DATASETS_DISPONIBLES,
@@ -77,8 +79,8 @@ Exemples :
         "--modele",
         type=str,
         default=TYPE_MODELE,
-        choices=["random_forest", "svm", "knn", "gradient_boosting"],
-        help="Type de modèle à utiliser (defaut: random_forest)",
+        choices=LISTE_MODELES,
+        help=f"Type de modèle à utiliser. Modèles dispo : {', '.join(LISTE_MODELES)}",
     )
 
     parser.add_argument(
@@ -87,6 +89,13 @@ Exemples :
         default="k_best",
         choices=["k_best", "pca", "aucun"],
         help="Méthode de sélection des caractéristiques (defaut: k_best)",
+    )
+
+    parser.add_argument(
+        "--compare",
+        action="store_true",
+        help="Comparer tous les modèles et afficher un tableau. "
+             "Alternative : python -m src.models.compare",
     )
 
     parser.add_argument(
@@ -292,7 +301,21 @@ def main() -> None:
     configurer_logging(niveau=niveau_log)
 
     # Exécution
-    if args.predict:
+    if args.compare:
+        # Délégation au script de comparaison dédié
+        from src.models.compare import compare_modeles, preparer_donnees, afficher_tableau, sauvegarder_resultats
+        logging.info("Comparaison des modèles en cours...")
+        X_train, X_test, y_train, y_test = preparer_donnees(
+            args.dataset, download=args.download
+        )
+        df_resultats = compare_modeles(
+            X_train, X_test, y_train, y_test,
+            modeles_a_comparer=LISTE_MODELES,
+        )
+        afficher_tableau(df_resultats)
+        if args.sauvegarder:
+            sauvegarder_resultats(df_resultats, args.dataset)
+    elif args.predict:
         executer_prediction(args)
     else:
         executer_pipeline_entrainement(args)
