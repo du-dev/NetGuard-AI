@@ -51,9 +51,9 @@
    - 6.2 Analyse comparative
    - 6.3 Discussion et limites
 7. [Conclusion](#conclusion)
-   - 7.1 Résumé du travail
-   - 7.2 Réponse à la problématique
-   - 7.3 Perspectives
+   - Résumé du travail
+   - Réponse à la problématique
+   - Perspectives
 8. [Bibliographie](#bibliographie)
 
 ---
@@ -407,175 +407,140 @@ Cette section décrit les algorithmes utilisés dans ce projet ainsi que deux al
 
 ### Arbre de décision (Decision Tree)
 
-**Fonctionnement** : L'arbre de décision est un modèle hiérarchique qui prend des décisions en suivant une structure d'arbre. Chaque nœud interne représente un test sur une caractéristique (ex: « est-ce que le nombre de paquets > 1000 ? »), chaque branche représente le résultat du test, et chaque feuille représente une classe (normal ou attaque).
+**Fonctionnement** : L'arbre de décision fonctionne comme un organigramme. Chaque nœud pose une question sur une caractéristique (ex: « le nombre de paquets > 1000 ? »). Selon la réponse, on suit une branche jusqu'à arriver à une feuille qui donne la classe (normal ou attaque).
 
-L'arbre est construit récursivement en choisissant à chaque nœud la caractéristique qui sépare le mieux les classes, selon des critères comme le gain d'information (entropie) ou l'indice de Gini.
+L'arbre est construit en choisissant à chaque étape la question qui sépare le mieux les classes.
 
 **Avantages** :
-- Très interprétable et visualisable
-- Rapide à entraîner et à exécuter
-- Gère à la fois les données numériques et catégorielles
+- Facile à comprendre et à visualiser
+- Rapide à entraîner
 - Ne nécessite pas de normalisation des données
 
 **Inconvénients** :
-- Tendance au surapprentissage (overfitting), surtout avec des arbres profonds
-- Sensible aux petites variations des données
-- Peut être instable (un petit changement peut produire un arbre très différent)
-- Précision généralement inférieure aux méthodes d'ensemble
+- Risque de surapprentissage (trop s'adapter aux données d'entraînement)
+- Instable (un petit changement peut tout changer)
+- Moins précis que les méthodes d'ensemble
 
-**Paramètres clés** : profondeur max (`max_depth`), échantillons min pour diviser (`min_samples_split`), critère de division (`criterion`).
+**Paramètres clés** : profondeur max (20), échantillons min pour diviser (5).
 
 ### Forêt aléatoire (Random Forest)
 
-**Fonctionnement** : Le Random Forest est une méthode d'ensemble qui construit une multitude d'arbres de décision sur des sous-ensembles aléatoires des données et des caractéristiques, puis combine leurs prédictions par vote majoritaire (classification) ou moyenne (régression).
+**Fonctionnement** : Le Random Forest est une méthode qui construit plusieurs arbres de décision sur des échantillons aléatoires des données. Ensuite, elle combine leurs résultats par vote majoritaire. C'est un peu comme demander l'avis de plusieurs experts au lieu d'un seul.
 
-L'algorithme introduit deux sources d'aléatoire :
-1. **Bagging** (Bootstrap Aggregating) : Chaque arbre est entraîné sur un échantillon aléatoire (avec remise) des données d'entraînement.
-2. **Sélection aléatoire des caractéristiques** : À chaque nœud, seulement un sous-ensemble aléatoire des caractéristiques est considéré pour la division.
+L'algorithme utilise deux astuces :
+1. **Bagging** : Chaque arbre est entraîné sur un échantillon différent des données.
+2. **Sélection aléatoire** : À chaque étape, seul un petit groupe de caractéristiques est considéré.
 
-Cette double randomisation rend le modèle très robuste au surapprentissage.
+Ces deux astuces rendent le modèle très résistant aux erreurs.
 
 **Avantages** :
-- Excellente précision, souvent parmi les meilleurs modèles
-- Très robuste au surapprentissage
-- Gère un grand nombre de caractéristiques
-- Fournit une estimation de l'importance des caractéristiques
-- Parallélisable facilement
+- Très bonne précision, souvent l'un des meilleurs modèles
+- Résiste bien au surapprentissage
+- Gère beaucoup de caractéristiques
+- Donne l'importance de chaque caractéristique
 
 **Inconvénients** :
-- Plus lent et plus volumineux qu'un seul arbre de décision
-- Moins interprétable qu'un arbre unique
-- Peut être moins performant sur des données très déséquilibrées
+- Plus lent qu'un seul arbre de décision
+- Moins facile à interpréter
+- Moins performant sur des données très déséquilibrées
 
-**Paramètres clés** : nombre d'arbres (`n_estimators`), profondeur max (`max_depth`).
+**Paramètres clés** : nombre d'arbres (100 par défaut), profondeur max (20).
 
-### K-plus proches voisins (KNN)
+### KNN (K plus proches voisins)
 
-**Fonctionnement** : KNN (K-Nearest Neighbors) est un algorithme non paramétrique qui classifie un nouvel échantillon en examinant les K échantillons d'entraînement les plus proches (selon une mesure de distance, généralement euclidienne). La classe prédite est la classe majoritaire parmi ces K voisins.
+**Fonctionnement** : KNN classifie un nouvel échantillon en regardant les K échantillons d'entraînement les plus proches (selon la distance). La classe prédite est celle qui revient le plus souvent parmi ces K voisins.
 
-KNN est un algorithme « paresseux » (lazy learner) : il ne construit pas de modèle explicite pendant l'entraînement. Tout le calcul est effectué au moment de la prédiction.
+KNN est un algorithme « paresseux » : il ne construit pas de modèle pendant l'entraînement. Tout le calcul est fait au moment de la prédiction.
 
 **Avantages** :
 - Simple à comprendre et à implémenter
-- Pas d'hypothèse sur la distribution des données
-- S'adapte naturellement aux frontières de décision complexes
-- Efficace avec un grand nombre d'échantillons d'entraînement
+- Pas d'hypothèse sur les données
+- S'adapte à n'importe quelle forme de données
 
 **Inconvénients** :
-- Très sensible à l'échelle des caractéristiques (nécessite une normalisation)
-- Lent en prédiction (doit calculer la distance à tous les échantillons)
-- Sensible à la malédiction de la dimensionnalité
-- Performance dépend fortement du choix de K
+- Lent en prédiction (doit calculer la distance à tous les points)
+- Sensible à l'échelle des caractéristiques
+- Moins performant avec beaucoup de caractéristiques
 
-**Paramètres clés** : nombre de voisins (`n_neighbors`), métrique de distance (`metric`), pondération (`weights`).
+**Paramètres clés** : nombre de voisins K (5 par défaut).
 
-### Machine à vecteurs de support (SVM)
+### SVM (Support Vector Machine)
 
-**Fonctionnement** : SVM (Support Vector Machine) cherche à trouver l'hyperplan qui sépare le mieux les classes dans un espace de dimension éventuellement élevée. L'hyperplan optimal maximise la marge (distance) entre les échantillons des deux classes. Les échantillons les plus proches de l'hyperplan sont appelés « vecteurs de support ».
+**Fonctionnement** : Le SVM cherche à tracer une ligne (ou un plan) qui sépare au mieux les classes. L'idée est de maximiser la marge entre les deux groupes. Les points les plus proches de la ligne de séparation sont appelés « vecteurs de support ».
 
-Pour les problèmes non linéairement séparables, SVM utilise l'astuce du noyau (kernel trick) : les données sont projetées dans un espace de dimension supérieure où une séparation linéaire devient possible.
+Quand les données ne sont pas séparables facilement, le SVM utilise une astuce (kernel trick) : il projette les données dans un espace plus grand où la séparation devient possible.
 
 **Avantages** :
-- Très performant en haute dimension
-- Efficace quand la marge de séparation est claire
-- Robuste grâce à la maximisation de la marge
-- Polyvalent grâce aux différents noyaux (linéaire, RBF, polynomial)
+- Très performant avec beaucoup de caractéristiques
+- Robuste quand les classes sont bien séparées
+- Polyvalent grâce aux différents noyaux (linéaire, RBF)
 
 **Inconvénients** :
-- Peut être lent à entraîner sur de grands jeux de données
-- Sensible au choix du noyau et des paramètres
-- Pas de probabilités natives (nécessite Platt scaling)
+- Lent à entraîner sur de grands jeux de données
 - Difficile à interpréter
+- Paramètres sensibles
 
-**Paramètres clés** : type de noyau (`kernel`), paramètre de régularisation (`C`), paramètre du noyau RBF (`gamma`).
+**Paramètres clés** : type de noyau (`kernel`), paramètre de régularisation (`C`).
 
 ### Régression logistique (Logistic Regression)
 
-**Fonctionnement** : Malgré son nom, la régression logistique est un modèle de classification. Elle modélise la probabilité qu'un échantillon appartienne à une classe donnée à l'aide de la fonction sigmoïde (logistique) :
-
-P(y=1|x) = 1 / (1 + e^(-z))
-
-où z est une combinaison linéaire des caractéristiques d'entrée. Le modèle estime les coefficients (poids) de cette combinaison linéaire en maximisant la vraisemblance des données d'entraînement.
+**Fonctionnement** : Malgré son nom, la régression logistique est un modèle de classification. Elle calcule la probabilité qu'un échantillon soit une attaque ou non, à l'aide d'une formule mathématique (fonction sigmoïde).
 
 **Avantages** :
 - Très rapide à entraîner
-- Probabilités bien calibrées
-- Simple et interprétable (coefficients interprétables)
-- Efficace quand les classes sont approximativement séparables linéairement
+- Donne des probabilités fiables
+- Simple à comprendre
 
 **Inconvénients** :
-- Suppose une relation linéaire entre les caractéristiques et le log-odds
-- Performance limitée si les frontières de décision sont complexes
+- Suppose que la relation entre les données est linéaire (pas toujours vrai)
+- Moins performante si les données sont complexes
 - Sensible aux valeurs aberrantes
-- Nécessite une bonne sélection des caractéristiques
 
-**Paramètres clés** : régularisation (`C`, `penalty`), solveur (`solver`).
+**Paramètres clés** : régularisation (C=1.0).
 
 ### Naive Bayes
 
-**Fonctionnement** : Le classifieur Naive Bayes est basé sur le théorème de Bayes avec une hypothèse d'indépendance conditionnelle forte (naïve) : on suppose que chaque caractéristique est indépendante des autres étant donné la classe. Malgré cette hypothèse souvent irréaliste, Naive Bayes donne de bons résultats dans de nombreux cas pratiques.
-
-La probabilité qu'un échantillon x appartienne à une classe c est donnée par :
-
-P(c|x) = P(c) × ∏ P(xi|c) / P(x)
-
-où P(c) est la probabilité a priori de la classe c, et P(xi|c) est la probabilité de la caractéristique xi sachant c.
+**Fonctionnement** : Naive Bayes est basé sur le théorème de Bayes. Il suppose (naïvement) que chaque caractéristique est indépendante des autres. Cette hypothèse est souvent fausse en réalité, mais le modèle donne quand même de bons résultats.
 
 **Avantages** :
-- Extrêmement rapide à entraîner et à prédire
+- Extrêmement rapide
 - Fonctionne avec peu de données
-- Gère bien un grand nombre de caractéristiques
-- Donne des probabilités bien calibrées
+- Gère beaucoup de caractéristiques
 
 **Inconvénients** :
-- Hypothèse d'indépendance trop forte pour des données corrélées
-- Sensible à la distribution des caractéristiques (suppose une distribution gaussienne pour GaussianNB)
-- Performances généralement inférieures aux modèles plus complexes
+- Suppose que les caractéristiques sont indépendantes (souvent faux)
+- Moins performant que des modèles plus complexes
 
-**Paramètres clés** : lissage (`var_smoothing`).
+**Paramètres clés** : lissage (1e-9).
 
 > **Note** : XGBoost et LightGBM sont présentés ici à titre de revue de littérature. Ils ne sont pas implémentés dans le projet NetGuard AI, qui se concentre sur six modèles de base de Scikit-learn. Leur ajout constituerait une amélioration future.
 
 ### XGBoost (eXtreme Gradient Boosting)
 
-**Fonctionnement** : XGBoost est une implémentation optimisée du gradient boosting. Contrairement au Random Forest qui construit des arbres indépendants en parallèle, le boosting construit des arbres séquentiellement : chaque nouvel arbre tente de corriger les erreurs de l'arbre précédent.
-
-XGBoost se distingue par :
-- Une régularisation avancée (L1 et L2) pour éviter le surapprentissage
-- Une parallélisation efficace au niveau de la construction des arbres
-- La gestion automatique des valeurs manquantes
-- Des optimisations matérielles (utilisation du cache)
+**Fonctionnement** : XGBoost est une version améliorée du gradient boosting. Contrairement au Random Forest qui construit des arbres en parallèle, le boosting construit les arbres un par un : chaque nouvel arbre essaie de corriger les erreurs du précédent.
 
 **Avantages** :
-- Très haute précision, souvent gagnant des compétitions Kaggle
-- Gère naturellement les valeurs manquantes
-- Intègre une régularisation puissante
-- Calcul distribué possible
+- Très haute précision (souvent gagnant en compétitions)
+- Gère bien les valeurs manquantes
+- Régularisation intégrée contre le surapprentissage
 
 **Inconvénients** :
-- Nombreux hyperparamètres à optimiser
-- Risque de surapprentissage si mal paramétré
-- Plus lent à entraîner que Random Forest
-- Interprétabilité limitée
+- Beaucoup de paramètres à régler
+- Risque de surapprentissage si mal réglé
+- Plus lent que Random Forest
 
 ### LightGBM (Light Gradient Boosting Machine)
 
-**Fonctionnement** : LightGBM est une variante du gradient boosting développée par Microsoft, optimisée pour la rapidité et l'efficacité mémoire. Ses innovations principales sont :
-
-- **GOSS** (Gradient-based One-Side Sampling) : Échantillonnage adaptatif qui privilégie les échantillons avec un grand gradient (mal prédits)
-- **EFB** (Exclusive Feature Bundling) : Regroupement de caractéristiques mutuellement exclusives pour réduire la dimensionnalité
+**Fonctionnement** : LightGBM est une version du gradient boosting développée par Microsoft. Elle est optimisée pour être rapide et utiliser peu de mémoire.
 
 **Avantages** :
-- Très rapide (jusqu'à 10 fois plus rapide que XGBoost)
-- Faible consommation mémoire
-- Haute précision comparable à XGBoost
-- Support natif des caractéristiques catégorielles
+- Très rapide (jusqu'à 10 fois plus que XGBoost)
+- Utilise peu de mémoire
+- Aussi précis que XGBoost
 
 **Inconvénients** :
 - Risque de surapprentissage sur petits jeux de données
-- Moins adapté aux données avec très peu d'échantillons
-- Paramétrage plus complexe
-- Moins mature que XGBoost
+- Paramétrage complexe
 
 ---
 
@@ -694,7 +659,7 @@ Pour améliorer les performances et réduire la dimensionnalité, une sélection
 
 ![Boxplots des caractéristiques](../data/processed/graphiques/02_boxplots_caracteristiques.png)
 
-*Graphique 4.3 : Distribution des 8 premières caractéristiques par classe (normal en vert, attaque en rouge). On observe que certaines caractéristiques présentent des distributions distinctes entre les deux classes, ce qui facilite la tâche de classification.*
+*Graphique 4.3 : Distribution des 8 premières caractéristiques par classe (normal en vert, attaque en rouge).*
 
 ## 4.3 Entraînement des modèles
 
@@ -779,11 +744,8 @@ La courbe ROC (Receiver Operating Characteristic) trace le taux de vrais positif
 L'AUC (Area Under the Curve) résume la performance globale du modèle en un nombre :
 - AUC = 1.0 : Classifieur parfait
 - AUC = 0.5 : Classifieur aléatoire
-- AUC < 0.5 : Classifieur pire que le hasard
 
-![Courbes ROC](../data/processed/graphiques/04_courbes_roc.png)
-
-*Graphique 4.3 : Courbes ROC des 6 modèles avec valeurs d'AUC*
+Les courbes ROC sont présentées dans le Chapitre 6 (Résultats).
 
 ### Taux de détection et taux de faux positifs
 
@@ -1183,7 +1145,7 @@ Le travail accompli comprend :
 
 6. **93 tests unitaires** garantissant la fiabilité du code.
 
-7. **10 graphiques** générés automatiquement pour visualiser les résultats.
+7. **12 graphiques** générés automatiquement pour visualiser les résultats.
 
 ## Réponse à la problématique
 
@@ -1207,42 +1169,28 @@ Plusieurs perspectives d'amélioration et d'extension du projet sont envisageabl
 
 ### Deep Learning
 
-L'utilisation de réseaux de neurones profonds (Deep Learning) pourrait améliorer les performances, notamment sur des données réelles complexes. Les architectures prometteuses incluent :
-- **MLP (Multi-Layer Perceptron)** : Réseau fully-connected pour la classification
-- **CNN (Convolutional Neural Network)** : Adaptation du trafic réseau en images pour utiliser des convolutions
-- **LSTM (Long Short-Term Memory)** : Capture des dépendances temporelles dans les flux réseau
-- **Autoencoders** : Détection d'anomalies par reconstruction
+Utiliser des réseaux de neurones pourrait améliorer les performances sur des données réelles. Par exemple :
+- **MLP** : Réseau classique pour la classification
+- **CNN** : Pour analyser le trafic réseau comme une image
+- **LSTM** : Pour détecter des tendances temporelles
+- **Autoencoders** : Pour détecter des anomalies
 
 ### Détection en temps réel
 
-Le système pourrait être adapté pour une détection en temps réel en :
-- Utilisant un buffer circulaire pour l'analyse en continu des flux
-- Implémentant un système de fenêtrage temporel glissant
-- Optimisant les modèles pour l'inférence rapide (ONNX, TensorRT)
-- Parallélisant le traitement avec multiprocessing
+Le système pourrait analyser le trafic en continu au lieu de fichiers CSV.
 
 ### Intégration avec un SIEM
 
-L'intégration avec un Security Information and Event Management (SIEM) permettrait :
-- L'envoi automatique des alertes vers une plateforme centralisée
-- La corrélation avec d'autres sources de sécurité
-- Le déclenchement de réponses automatiques (containment, blocking)
-- La génération de rapports de sécurité automatisés
+Relier le système à une plateforme de sécurité centralisée (SIEM) pour automatiser les alertes.
 
 ### Déploiement sur un réseau réel
 
-Le déploiement sur un réseau réel nécessiterait :
-- L'utilisation de CICIDS2017 ou d'un dataset réel pour l'entraînement
-- L'adaptation au trafic spécifique du réseau cible
-- La mise en place d'une boucle de feedback pour améliorer le modèle
-- Le respect des contraintes de performance (latence, débit)
+Tester le système sur un vrai réseau d'entreprise avec CICIDS2017.
 
-### Extensions fonctionnelles
+### Autres extensions
 
-- **Classification multi-classes** : Identifier le type spécifique d'attaque (DoS, DDoS, brute force, etc.)
-- **Détection d'anomalies non supervisée** : Détecter des comportements inconnus sans données étiquetées
-- **Explicabilité (XAI)** : Utiliser SHAP ou LIME pour expliquer les décisions du modèle
-- **Dashboard temps réel** : Interface web avec graphiques dynamiques et alertes en direct
+- **Classification multi-classes** : Identifier le type d'attaque (DoS, DDoS, brute force, etc.)
+- **Explicabilité** : Expliquer pourquoi le modèle prend ses décisions
 
 ---
 
