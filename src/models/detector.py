@@ -109,6 +109,8 @@ def creer_modele(type_modele: str, **params_supplementaires) -> Any:
     return classe_modele(**params_finaux)
 
 
+
+
 # ─── Classe principale de détection ─────────────────────────────────────────
 
 class DetecteurIntrusions:
@@ -306,3 +308,7 @@ class DetecteurIntrusions:
         else:
             self.type_modele = type(self.modele).__name__
         logging.info("Modèle chargé : %s", self.type_modele)
+
+
+
+

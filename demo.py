@@ -241,3 +241,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     configurer_logging(niveau=logging.INFO)
     executer_demo(dataset=args.dataset, download=args.download)
+
