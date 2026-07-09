@@ -50,95 +50,244 @@ st.set_page_config(
 )
 
 # ─── Style CSS personnalisé ───────────────────────────────────────────────
+# Conçu pour être lisible en mode clair ET en mode sombre.
+# Utilise des couleurs explicites avec un bon contraste.
 st.markdown("""
     <style>
-        /* Titre principal */
+        /* Variables CSS (s'adaptent au thème Streamlit) */
+        :root {
+            --text-primary: #1a1a2e;
+            --text-secondary: #2d3436;
+            --text-muted: #555;
+            --bg-card: #f8f9fa;
+            --border-light: #e0e0e0;
+            --accent: #1E88E5;
+            --accent-dark: #1565C0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Thème sombre Streamlit */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #e0e0e0;
+                --text-secondary: #cccccc;
+                --text-muted: #aaaaaa;
+                --bg-card: #2d2d3d;
+                --border-light: #444;
+                --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            }
+        }
         .main-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1E88E5;
-            margin-bottom: 0.2rem;
+            font-size: 2.2rem !important;
+            font-weight: 700 !important;
+            color: var(--accent) !important;
+            margin-bottom: 0.2rem !important;
+            line-height: 1.2 !important;
         }
         .main-subtitle {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 2rem;
+            font-size: 1rem !important;
+            color: var(--text-secondary) !important;
+            margin-bottom: 1.5rem !important;
         }
-        /* Cartes de métriques */
+
+        /* Cartes de métriques (fond bleu par défaut) */
         .metric-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1565C0 0%, #42a5f5 100%);
             padding: 1.2rem;
             border-radius: 12px;
-            color: white;
+            color: #ffffff !important;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
+            border: none;
         }
         .metric-card.green {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, #0d8a6e 0%, #2ecc71 100%);
         }
         .metric-card.orange {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #d35400 0%, #e67e22 100%);
         }
         .metric-card.blue {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #1565C0 0%, #42a5f5 100%);
         }
         .metric-card.purple {
-            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            background: linear-gradient(135deg, #6c3483 0%, #af7ac5 100%);
         }
-        .metric-value {
-            font-size: 2rem;
+        .metric-card .metric-value {
+            font-size: 1.8rem;
             font-weight: 700;
+            color: #ffffff !important;
         }
-        .metric-label {
+        .metric-card .metric-label {
             font-size: 0.85rem;
-            opacity: 0.9;
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
         }
+
         /* Résultat de prédiction */
         .prediction-normal {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #0d8a6e 0%, #2ecc71 100%);
+            padding: 1.2rem;
             border-radius: 12px;
-            color: white;
+            color: #ffffff !important;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
         .prediction-attack {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            padding: 1.2rem;
             border-radius: 12px;
-            color: white;
+            color: #ffffff !important;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
+
         /* En-tête de section */
         .section-header {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            color: #1E88E5;
+            color: var(--accent) !important;
             margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #1E88E5;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid var(--accent);
         }
+
         /* Pied de page */
         .footer {
             text-align: center;
-            color: #999;
-            font-size: 0.85rem;
-            margin-top: 3rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
+            color: var(--text-muted) !important;
+            font-size: 0.82rem;
+            margin-top: 2rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border-light);
         }
-        /* Info box */
+
+        /* Info box - fond et texte explicites pour tous les thèmes */
         .info-box {
-            background: #f0f2f6;
+            background: var(--bg-card);
             padding: 1rem;
             border-radius: 10px;
-            border-left: 4px solid #1E88E5;
+            border-left: 4px solid var(--accent);
+            color: var(--text-primary) !important;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .info-box b, .info-box strong {
+            color: var(--accent-dark) !important;
+        }
+        @media (prefers-color-scheme: dark) {
+            .info-box b, .info-box strong {
+                color: #64b5f6 !important;
+            }
+        }
+
+        /* Texte dans les expanders et sidebar */
+        .st-emotion-cache p, .st-emotion-cache span {
+            color: var(--text-primary) !important;
+        }
+
+        /* Tableaux - garantit la lisibilité */
+        .stDataFrame {
+            color: var(--text-primary) !important;
+        }
+
+        /* Bouton de téléchargement */
+        .stDownloadButton button {
+            font-weight: 600;
+        }
+
+        /* Texte d'information Streamlit */
+        .stAlert {
+            color: var(--text-primary) !important;
+        }
+
+        /* Métriques Streamlit natifs */
+        [data-testid="stMetricValue"] {
+            color: var(--text-primary) !important;
+            font-weight: 700;
+        }
+        [data-testid="stMetricLabel"] {
+            color: var(--text-secondary) !important;
+        }
+
+        /* ─── ESPACEMENTS ──────────────────────────────────────── */
+        /* Espace entre les sections */
+        .section-header {
+            margin-top: 2rem !important;
+            margin-bottom: 1.2rem !important;
+        }
+        .section-header:first-of-type {
+            margin-top: 0.5rem !important;
+        }
+
+        /* Espace entre les cartes de métriques (colonnes Streamlit) */
+        div[data-testid="column"] {
+            padding: 0 0.4rem !important;
+        }
+        div[data-testid="column"]:first-child {
+            padding-left: 0 !important;
+        }
+        div[data-testid="column"]:last-child {
+            padding-right: 0 !important;
+        }
+
+        /* Espace sous chaque carte métrique */
+        .metric-card {
+            margin-bottom: 0.8rem !important;
+        }
+
+        /* Espace entre les lignes de colonnes */
+        div.row-widget.stColumns {
+            margin-bottom: 1rem !important;
+        }
+
+        /* Espace sous le titre */
+        .main-title {
+            margin-bottom: 0.1rem !important;
+        }
+        .main-subtitle {
+            margin-bottom: 2rem !important;
+        }
+
+        /* Espace sous les prédictions */
+        .prediction-normal, .prediction-attack {
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Espace entre les expanders */
+        .st-emotion-cache-1i8v1p8, .streamlit-expander {
+            margin-bottom: 0.8rem !important;
+        }
+
+        /* Espace sous le bouton de tél.chargement */
+        .stDownloadButton {
+            margin-top: 1rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Espace sous les dataframes */
+        .stDataFrame {
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Info box : espacement interne */
+        .info-box {
+            margin-bottom: 1rem !important;
+        }
+        .info-box b {
+            display: inline-block;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Espace autour du pied de page */
+        .footer {
+            margin-top: 2.5rem !important;
+            padding-top: 1rem !important;
+            padding-bottom: 0.5rem !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -566,8 +715,20 @@ elif modele_charge and donnees_chargees:
     if bouton_predire:
         with st.spinner("Prédiction en cours..."):
             try:
-                # Conversion en numpy array
-                X = df.values.astype(np.float64)
+                # ─── Détection automatique de la colonne label ────────────
+                # Si le fichier contient une colonne 'label', 'Label', etc.
+                # on la retire automatiquement pour la prédiction
+                colonne_label = None
+                for col_name in ["label", "Label", "class", "Class", "target"]:
+                    if col_name in df.columns:
+                        colonne_label = col_name
+                        break
+
+                # Caractéristiques pour la prédiction (sans la colonne label)
+                if colonne_label is not None:
+                    X = df.drop(columns=[colonne_label]).values.astype(np.float64)
+                else:
+                    X = df.values.astype(np.float64)
 
                 # Prédiction
                 y_pred = modele.predict(X)
@@ -589,12 +750,6 @@ elif modele_charge and donnees_chargees:
                 nb_attaque = int(np.sum(y_pred == 1))
 
                 # ─── Section Performance si label présent ─────────────────
-                colonne_label = None
-                for col_name in ["label", "Label", "class", "Class"]:
-                    if col_name in df.columns:
-                        colonne_label = col_name
-                        break
-
                 if colonne_label is not None:
                     st.markdown(
                         '<div class="section-header">📈 Performances du modèle</div>',
