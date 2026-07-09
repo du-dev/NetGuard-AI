@@ -692,6 +692,10 @@ Pour améliorer les performances et réduire la dimensionnalité, une sélection
 
 *Graphique 4.2 : Heatmap de corrélation entre les caractéristiques du dataset*
 
+![Boxplots des caractéristiques](../data/processed/graphiques/02_boxplots_caracteristiques.png)
+
+*Graphique 4.3 : Distribution des 8 premières caractéristiques par classe (normal en vert, attaque en rouge). On observe que certaines caractéristiques présentent des distributions distinctes entre les deux classes, ce qui facilite la tâche de classification.*
+
 ## 4.3 Entraînement des modèles
 
 Six modèles de classification supervisée sont entraînés et comparés dans ce projet :
@@ -812,6 +816,10 @@ Le projet NetGuard AI a été développé avec les technologies suivantes :
 **Python** a été choisi pour sa richesse en bibliothèques de data science et sa large adoption dans la communauté du Machine Learning. **Scikit-learn** offre une API unifiée pour tous les modèles (fit/predict), ce qui facilite l'implémentation et la comparaison. **Streamlit** permet de créer une interface web interactive sans nécessiter de compétences en développement web (HTML, CSS, JavaScript).
 
 ## 5.2 Architecture du système
+
+![Architecture du pipeline](../data/processed/graphiques/11_architecture_pipeline.png)
+
+*Graphique 5.1 : Architecture modulaire du système NetGuard AI. Le pipeline suit un flux séquentiel : Dataset → Prétraitement → Caractéristiques → Modèles ML → Évaluation → Interface utilisateur.*
 
 L'architecture du système est modulaire, organisée en six packages principaux :
 
@@ -938,6 +946,10 @@ python main.py --dataset cicids2017
 python main.py --compare
 ```
 
+![Interface Streamlit](../data/processed/graphiques/12_interface_streamlit.png)
+
+*Graphique 5.2 : Interface utilisateur Streamlit. Barre latérale de configuration (gauche), résultat de prédiction avec code couleur, cartes métriques et tableau de résultats (droite).*
+
 ### Interface web Streamlit (`app.py`)
 
 L'interface Streamlit moderne et interactive permet :
@@ -976,6 +988,8 @@ Les graphiques sont sauvegardés dans `data/processed/graphiques/` :
 8. Temps d'entraînement
 9. Détection vs faux positifs
 10. Tableau comparatif
+11. Diagramme d'architecture du pipeline
+12. Interface Streamlit (mockup)
 
 ## 5.5 Tests unitaires
 
