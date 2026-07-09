@@ -26,6 +26,7 @@ NetGuard AI est un projet universitaire de Master qui utilise l'apprentissage su
 - [Datasets](#-datasets)
 - [Tests](#-tests)
 - [Technologies](#-technologies)
+- [Documentation](#-documentation)
 - [License](#-license)
 
 ---
@@ -211,6 +212,12 @@ NetGuard-AI/
 │   ├── test_detector.py         #   6 modèles × plusieurs cas
 │   └── test_pipeline.py         #   Pipeline de prétraitement
 │
+├── docs/                        # Documentation
+│   ├── GUIDE_UTILISATEUR.md     # Guide utilisateur
+│   └── GUIDE_DEVELOPPEUR.md     # Guide développeur
+│
+├── RAPPORT_FINAL.md             # Rapport complet du projet
+│
 ├── requirements.txt             # Dépendances Python
 ├── .gitignore
 ├── LICENSE                      # Licence MIT
@@ -259,6 +266,14 @@ Classement des 6 modèles sur données synthétiques (test : 600 échantillons) 
 - 80+ caractéristiques, 5 jours de trafic
 - Attaques : DoS, DDoS, Brute Force, Web, Botnet, Port Scan
 - Téléchargement : `python datasets/download_cicids2017.py`
+
+---
+
+## 📚 Documentation
+
+- 📖 [Guide utilisateur](docs/GUIDE_UTILISATEUR.md) — Installation et utilisation
+- 🔧 [Guide développeur](docs/GUIDE_DEVELOPPEUR.md) — Architecture et extension
+- 📄 [Rapport final](RAPPORT_FINAL.md) — Rapport complet du projet
 
 ---
 
