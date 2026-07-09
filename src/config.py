@@ -6,6 +6,7 @@ Ce module centralise tous les paramètres modifiables du projet :
 - Les paramètres du modèle de Machine Learning
 - Les paramètres de prétraitement des données
 - Les paramètres d'évaluation
+- Les configurations des datasets supportés
 """
 
 from pathlib import Path
@@ -21,9 +22,12 @@ DOSSIER_DATA = PROJET_RACINE / "data"
 DOSSIER_DATA_BRUT = DOSSIER_DATA / "raw"
 DOSSIER_DATA_TRANSFORME = DOSSIER_DATA / "processed"
 
-# ─── Paramètres du jeu de données ────────────────────────────────────────────
+# Dossier des datasets (téléchargement automatique)
+DOSSIER_DATASETS = PROJET_RACINE / "datasets"
 
-# Nom du fichier CSV du dataset (à placer dans data/raw/)
+# ─── Paramètres généraux du jeu de données ───────────────────────────────────
+
+# Nom du fichier CSV du dataset synthétique (par défaut)
 FICHIER_DATASET = "network_traffic.csv"
 
 # Séparateur CSV
@@ -38,6 +42,72 @@ FRACTION_VALIDATION = 0.15
 
 # Valeur seed pour la reproductibilité
 SEED_ALEATOIRE = 42
+
+# ─── Configuration du dataset CICIDS2017 ─────────────────────────────────────
+
+# Documentation : https://www.unb.ca/cic/datasets/ids-2017.html
+# Cet dataset contient du trafic réseau réel avec 80+ caractéristiques
+# extraites par CICFlowMeter, incluant des attaques variées.
+
+CICIDS2017_CONFIG = {
+    # Nom du fichier consolidé après téléchargement et nettoyage
+    "fichier_sortie": "cicids2017_consolide.csv",
+
+    # Colonne contenant le label dans les fichiers sources
+    "colonne_label": "Label",
+
+    # Colonnes à ignorer (identifiants réseau, timestamps, etc.)
+    "colonnes_a_ignorer": [
+        "Flow ID",
+        "Source IP",
+        "Source Port",
+        "Destination IP",
+        "Destination Port",
+        "Protocol",
+        "Timestamp",
+        "Fwd Header Length.1",  # Colonne dupliquée parfois présente
+    ],
+
+    # Liste des 8 fichiers CSV dans l'archive MachineLearningCSV.zip
+    "fichiers_csv": [
+        "Monday-WorkingHours.pcap_ISCX.csv",
+        "Tuesday-WorkingHours.pcap_ISCX.csv",
+        "Wednesday-workingHours.pcap_ISCX.csv",
+        "Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv",
+        "Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv",
+        "Friday-WorkingHours-Morning.pcap_ISCX.csv",
+        "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv",
+        "Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv",
+    ],
+}
+
+# Chemin complet vers le fichier consolidé
+CICIDS2017_CONFIG["chemin_sortie"] = (
+    DOSSIER_DATASETS / CICIDS2017_CONFIG["fichier_sortie"]
+)
+
+# ─── Datasets disponibles ────────────────────────────────────────────────────
+
+# Liste des datasets supportés par le projet
+DATASETS_DISPONIBLES = {
+    "synthetique": {
+        "nom": "Données synthétiques (démo)",
+        "description": "Généré automatiquement par demo.py",
+        "chemin": DOSSIER_DATA_BRUT / FICHIER_DATASET,
+        "colonne_label": "label",
+        "colonnes_a_ignorer": ["id", "timestamp"],
+    },
+    "cicids2017": {
+        "nom": "CICIDS2017",
+        "description": "Dataset réel de l'Université du Nouveau-Brunswick",
+        "chemin": CICIDS2017_CONFIG["chemin_sortie"],
+        "colonne_label": "label",
+        "colonnes_a_ignorer": [],  # Déjà nettoyé par le script
+    },
+}
+
+# Dataset par défaut
+DATASET_PAR_DEFAUT = "synthetique"
 
 # ─── Paramètres du modèle ────────────────────────────────────────────────────
 
@@ -77,7 +147,7 @@ PARAMS_GRADIENT_BOOSTING = {
     "random_state": SEED_ALEATOIRE,
 }
 
-# ─── Colonnes du dataset ─────────────────────────────────────────────────────
+# ─── Colonnes du dataset (générique) ─────────────────────────────────────────
 
 # Colonne cible (label : 0 = normal, 1 = attaque)
 COLONNE_CIBLE = "label"

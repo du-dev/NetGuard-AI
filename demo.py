@@ -1,15 +1,17 @@
 """
 Script de démonstration de NetGuard AI.
 
-Génère un jeu de données synthétique pour tester le pipeline
-sans avoir besoin d'un véritable fichier CSV d'entrée.
+Ce script propose plusieurs modes de démonstration :
+1. Données synthétiques (par défaut) : génère et teste un dataset aléatoire
+2. Dataset CICIDS2017 : utilise le dataset réel si disponible
 
-Ce script permet une démonstration complète du projet :
-1. Génération de données réseau synthétiques
-2. Pipeline complet d'entraînement et d'évaluation
-3. Affichage des résultats
+Utilisation :
+    python demo.py                          # Démo avec données synthétiques
+    python demo.py --dataset cicids2017     # Démo avec CICIDS2017
+    python demo.py --dataset cicids2017 --download  # Télécharge puis démo
 """
 
+import argparse
 import logging
 import sys
 from pathlib import Path
@@ -20,14 +22,41 @@ import pandas as pd
 from src.config import (
     DOSSIER_DATA_BRUT,
     DOSSIER_DATA_TRANSFORME,
+    DOSSIER_DATASETS,
     SEED_ALEATOIRE,
     FICHIER_DATASET,
+    DATASETS_DISPONIBLES,
+    DATASET_PAR_DEFAUT,
 )
 from src.preprocessing.data_loader import ChargeurDonnees
 from src.features.feature_extractor import ExtracteurCaracteristiques
 from src.models.detector import DetecteurIntrusions
 from src.evaluation.metrics import Evaluateur
 from src.utils.helpers import configurer_logging, Chronometre
+
+
+def definir_arguments() -> argparse.ArgumentParser:
+    """Configure les arguments en ligne de commande."""
+    parser = argparse.ArgumentParser(
+        description="NetGuard AI - Démonstration de détection d'intrusions",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=DATASET_PAR_DEFAUT,
+        choices=list(DATASETS_DISPONIBLES.keys()),
+        help=f"Dataset à utiliser (defaut: {DATASET_PAR_DEFAUT})",
+    )
+
+    parser.add_argument(
+        "--download",
+        action="store_true",
+        help="Télécharger automatiquement CICIDS2017 si absent",
+    )
+
+    return parser
 
 
 def generer_donnees_synthetiques(
@@ -94,8 +123,16 @@ def generer_donnees_synthetiques(
     return chemin_fichier
 
 
-def executer_demo() -> None:
-    """Exécute la démonstration complète de NetGuard AI."""
+def executer_demo(dataset: str = "synthetique", download: bool = False) -> None:
+    """
+    Exécute la démonstration complète de NetGuard AI.
+
+    Args:
+        dataset: Nom du dataset à utiliser.
+        download: Si True, télécharge le dataset si absent.
+    """
+    config_dataset = DATASETS_DISPONIBLES[dataset]
+
     print()
     print("+" + "-" * 58 + "+")
     print("|" + " " * 18 + "NETGUARD AI" + " " * 28 + "|")
@@ -103,23 +140,46 @@ def executer_demo() -> None:
     print("|" + " " * 12 + "par Machine Learning" + " " * 25 + "|")
     print("+" + "-" * 58 + "+")
     print()
+    print(f" Dataset : {config_dataset['nom']}")
+    print()
 
-    # ─── Étape 1 : Génération des données ────────────────────────────────────
+    # ─── Étape 0 : Téléchargement si nécessaire ──────────────────────────────
 
-    with Chronometre("Génération des données synthétiques"):
-        generer_donnees_synthetiques(n_echantillons=2000)
+    if download and dataset == "cicids2017":
+        if not config_dataset["chemin"].exists():
+            with Chronometre("Téléchargement du dataset CICIDS2017"):
+                from datasets.download_cicids2017 import executer_pipeline_complet
+                succes = executer_pipeline_complet()
+                if not succes:
+                    logging.error(
+                        "Téléchargement impossible."
+                    )
+                    return
+        else:
+            logging.info("Dataset CICIDS2017 déjà présent.")
+
+    # ─── Étape 1 : Génération ou chargement des données ──────────────────────
+
+    if dataset == "synthetique":
+        with Chronometre("Génération des données synthétiques"):
+            generer_donnees_synthetiques(n_echantillons=2000)
 
     # ─── Étape 2 : Pipeline complet ──────────────────────────────────────────
 
     with Chronometre("Pipeline complet (prétraitement + entraînement + évaluation)"):
         # Chargement et prétraitement
-        chargeur = ChargeurDonnees()
+        chargeur = ChargeurDonnees(
+            chemin_dataset=config_dataset["chemin"],
+            colonne_label=config_dataset["colonne_label"],
+            colonnes_a_ignorer=config_dataset["colonnes_a_ignorer"],
+        )
         X_train, X_val, X_test, y_train, y_val, y_test = (
             chargeur.preparer_donnees()
         )
 
         # Sélection des caractéristiques
-        extracteur = ExtracteurCaracteristiques(methode="k_best", n_caracteristiques=15)
+        n_caracs = min(15, X_train.shape[1])
+        extracteur = ExtracteurCaracteristiques(methode="k_best", n_caracteristiques=n_caracs)
         X_train, X_val, X_test = extracteur.transformer(
             X_train, X_val, X_test, y_train
         )
@@ -145,7 +205,8 @@ def executer_demo() -> None:
     print("-" * 60)
     print("  RESULTATS DE LA DEMONSTRATION")
     print("-" * 60)
-    print(f"  Modèle utilisé : Random Forest")
+    print(f"  Dataset     : {config_dataset['nom']}")
+    print(f"  Modèle      : Random Forest")
     print(f"  Échantillons de test : {len(y_test)}")
     print()
     print(f"  Accuracy  : {metriques['accuracy']:.4f}")
@@ -157,7 +218,7 @@ def executer_demo() -> None:
     print(f"  Taux de fausses alarmes         : {taux['taux_faux_positifs']:.2%}")
     print()
 
-    # Matrice de confusion simplifiee
+    # Matrice de confusion simplifiée
     vn, fp, fn, vp = matrice.ravel()
     print("  Matrice de confusion :")
     print(f"                    Predite")
@@ -176,5 +237,7 @@ def executer_demo() -> None:
 
 
 if __name__ == "__main__":
+    parser = definir_arguments()
+    args = parser.parse_args()
     configurer_logging(niveau=logging.INFO)
-    executer_demo()
+    executer_demo(dataset=args.dataset, download=args.download)

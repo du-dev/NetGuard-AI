@@ -2,16 +2,20 @@
 Point d'entrée principal de NetGuard AI.
 
 Utilisation :
-    python main.py              # Entraînement et évaluation complète
-    python main.py --predict    # Mode prédiction uniquement
-    python main.py --help       # Aide détaillée
+    python main.py                          # Pipeline complet (dataset synthétique)
+    python main.py --dataset cicids2017     # Utiliser le dataset CICIDS2017
+    python main.py --dataset cicids2017 --download  # Télécharger CICIDS2017 puis entraîner
+    python main.py --modele svm             # Utiliser SVM
+    python main.py --predict --fichier donnees.csv  # Prédire sur de nouvelles données
+    python main.py --help                   # Aide détaillée
 
 Ce script orchestre le pipeline complet :
-1. Chargement et prétraitement des données
-2. Extraction des caractéristiques
-3. Entraînement du modèle
-4. Évaluation des performances
-5. Sauvegarde du modèle entraîné
+1. Téléchargement du dataset (optionnel)
+2. Chargement et prétraitement des données
+3. Extraction des caractéristiques
+4. Entraînement du modèle
+5. Évaluation des performances
+6. Sauvegarde du modèle entraîné
 """
 
 import argparse
@@ -25,6 +29,9 @@ from joblib import dump, load
 from src.config import (
     TYPE_MODELE,
     DOSSIER_DATA_TRANSFORME,
+    DOSSIER_DATASETS,
+    DATASETS_DISPONIBLES,
+    DATASET_PAR_DEFAUT,
     SEED_ALEATOIRE,
 )
 from src.preprocessing.data_loader import ChargeurDonnees
@@ -50,6 +57,20 @@ Exemples :
   python main.py --aucune-selection      # Sans sélection de caractéristiques
   python main.py --predict --fichier donnees.csv  # Prédire sur de nouvelles données
         """,
+    )
+
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=DATASET_PAR_DEFAUT,
+        choices=list(DATASETS_DISPONIBLES.keys()),
+        help=f"Dataset à utiliser (defaut: {DATASET_PAR_DEFAUT})",
+    )
+
+    parser.add_argument(
+        "--download",
+        action="store_true",
+        help="Télécharger automatiquement le dataset si absent",
     )
 
     parser.add_argument(
@@ -104,17 +125,44 @@ def executer_pipeline_entrainement(args: argparse.Namespace) -> None:
     Args:
         args: Arguments de la ligne de commande.
     """
+    # Récupérer la configuration du dataset
+    config_dataset = DATASETS_DISPONIBLES[args.dataset]
+
     logging.info("=" * 50)
     logging.info("NETGUARD AI - Pipeline de détection d'intrusions")
     logging.info("=" * 50)
-    logging.info("Modèle : %s", args.modele)
+    logging.info("Dataset  : %s (%s)", args.dataset, config_dataset["nom"])
+    logging.info("Fichier  : %s", config_dataset["chemin"])
+    logging.info("Modèle   : %s", args.modele)
     logging.info("Sélection des caractéristiques : %s", args.selection_caracs)
     logging.info("Seed aléatoire : %d", SEED_ALEATOIRE)
+
+    # ─── Étape 0 : Téléchargement automatique si demandé ─────────────────────
+
+    if args.download and args.dataset == "cicids2017":
+        if not config_dataset["chemin"].exists():
+            logging.info(
+                "Téléchargement du dataset CICIDS2017..."
+            )
+            from datasets.download_cicids2017 import executer_pipeline_complet
+            succes = executer_pipeline_complet()
+            if not succes:
+                logging.error(
+                    "Téléchargement impossible. "
+                    "Voir datasets/download_cicids2017.py pour l'aide."
+                )
+                sys.exit(1)
+        else:
+            logging.info("Dataset CICIDS2017 déjà présent.")
 
     # ─── Étape 1 : Chargement et prétraitement ───────────────────────────────
 
     with Chronometre("Chargement et prétraitement"):
-        chargeur = ChargeurDonnees()
+        chargeur = ChargeurDonnees(
+            chemin_dataset=config_dataset["chemin"],
+            colonne_label=config_dataset["colonne_label"],
+            colonnes_a_ignorer=config_dataset["colonnes_a_ignorer"],
+        )
         X_train, X_val, X_test, y_train, y_val, y_test = (
             chargeur.preparer_donnees()
         )

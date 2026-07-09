@@ -15,6 +15,7 @@ NetGuard AI est un projet universitaire de Master qui utilise l'apprentissage su
 - [Structure du projet](#-structure-du-projet)
 - [Modèles disponibles](#-modèles-disponibles)
 - [Jeu de données](#-jeu-de-données)
+- [Dataset CICIDS2017](#-dataset-cicids2017)
 - [Métriques](#-métriques-dévaluation)
 - [Démonstration](#-démonstration)
 - [Technologies](#-technologies)
@@ -123,16 +124,30 @@ python main.py --selection-caracs pca --n-caracteristiques 10
 python main.py --selection-caracs aucun
 ```
 
+### Avec le dataset CICIDS2017
+
+```bash
+# Télécharger et utiliser CICIDS2017
+python main.py --dataset cicids2017 --download
+
+# Utiliser CICIDS2017 déjà téléchargé
+python main.py --dataset cicids2017
+```
+
 ### Mode verbose
 
 ```bash
 python main.py --verbose
 ```
 
-### Démonstration avec données synthétiques
+### Démonstration
 
 ```bash
+# Données synthétiques (par défaut)
 python demo.py
+
+# Avec CICIDS2017
+python demo.py --dataset cicids2017
 ```
 
 ### Prédiction sur de nouvelles données
@@ -151,6 +166,10 @@ NetGuard-AI/
 ├── data/
 │   ├── raw/              # Jeux de données bruts (CSV)
 │   └── processed/        # Modèles et métriques sauvegardés
+│
+├── datasets/             # Scripts et datasets téléchargés
+│   ├── __init__.py
+│   └── download_cicids2017.py  # Téléchargement automatique
 │
 ├── notebooks/            # Notebooks Jupyter (exploration)
 │
@@ -201,6 +220,53 @@ Le projet attend un fichier CSV dans `data/raw/network_traffic.csv` avec :
 - Une colonne `label` (0 = trafic normal, 1 = attaque)
 
 Si vous ne disposez pas de dataset réel, utilisez `demo.py` pour générer des données synthétiques.
+
+---
+
+## 📦 Dataset CICIDS2017
+
+Le projet supporte le dataset **CICIDS2017** (Canadian Institute for Cybersecurity), un jeu de données de référence en détection d'intrusions contenant du trafic réseau réel avec 80+ caractéristiques extraites par CICFlowMeter.
+
+### Contenu
+
+- **8 fichiers CSV** représentant 5 jours de trafic réseau
+- **80+ caractéristiques** : durée des flux, paquets, flags TCP, etc.
+- **Types d'attaques** : DoS, DDoS, Brute Force, Web Attack, Infiltration, Botnet, Port Scan
+- 
+### Téléchargement automatique
+
+```bash
+# Télécharger et préparer le dataset CICIDS2017
+python datasets/download_cicids2017.py
+
+# Ou via le pipeline principal
+python main.py --dataset cicids2017 --download
+
+# Démonstration avec CICIDS2017
+python demo.py --dataset cicids2017 --download
+```
+
+Le script de téléchargement :
+1. Télécharge l'archive `MachineLearningCSV.zip` (~550 Mo)
+2. Extrait et consolide les 8 fichiers CSV
+3. Nettoie les données (NaN, Infinity, doublons)
+4. Convertit les labels en binaire (BENIGN=0, attaque=1)
+5. Sauvegarde le fichier consolidé dans `datasets/cicids2017_consolide.csv`
+
+> **Note :** Si le téléchargement automatique échoue, le script affiche des instructions pour un téléchargement manuel depuis le site officiel de l'UNB.
+
+### Pipeline avec CICIDS2017
+
+```bash
+# Utiliser CICIDS2017 (après téléchargement)
+python main.py --dataset cicids2017
+
+# Avec un modèle différent
+python main.py --dataset cicids2017 --modele gradient_boosting
+
+# Réduction de dimensionnalité
+python main.py --dataset cicids2017 --selection-caracs pca --n-caracteristiques 30
+```
 
 ---
 

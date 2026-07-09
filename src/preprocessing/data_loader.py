@@ -36,14 +36,24 @@ class ChargeurDonnees:
     def __init__(
         self,
         chemin_dataset: Optional[Path] = None,
+        colonne_label: str = COLONNE_CIBLE,
+        colonnes_a_ignorer: Optional[list] = None,
     ):
         """
         Args:
             chemin_dataset: Chemin vers le fichier CSV.
                             Par défaut : data/raw/network_traffic.csv
+            colonne_label: Nom de la colonne cible (defaut: 'label').
+            colonnes_a_ignorer: Liste des colonnes à ignorer.
         """
         self.chemin_dataset = chemin_dataset or (
             DOSSIER_DATA_BRUT / FICHIER_DATASET
+        )
+        self.colonne_label = colonne_label
+        self.colonnes_a_ignorer = (
+            colonnes_a_ignorer
+            if colonnes_a_ignorer is not None
+            else COLONNES_A_IGNORER.copy()
         )
         self.donnees: Optional[pd.DataFrame] = None
         self.encodage_label: Optional[LabelEncoder] = None
@@ -89,7 +99,8 @@ class ChargeurDonnees:
 
         # Suppression des colonnes à ignorer (si elles existent)
         colonnes_a_supprimer = [
-            col for col in COLONNES_A_IGNORER if col in self.donnees.columns
+            col for col in self.colonnes_a_ignorer
+            if col in self.donnees.columns
         ]
         if colonnes_a_supprimer:
             self.donnees.drop(columns=colonnes_a_supprimer, inplace=True)
@@ -133,8 +144,13 @@ class ChargeurDonnees:
         logging.info("Séparation des jeux de données...")
 
         # Séparation des caractéristiques (X) et de la cible (y)
-        X = self.donnees.drop(columns=[COLONNE_CIBLE])
-        y = self.donnees[COLONNE_CIBLE]
+        if self.colonne_label not in self.donnees.columns:
+            raise ValueError(
+                f"Colonne cible '{self.colonne_label}' introuvable. "
+                f"Colonnes disponibles : {list(self.donnees.columns[:10])}..."
+            )
+        X = self.donnees.drop(columns=[self.colonne_label])
+        y = self.donnees[self.colonne_label]
 
         # Premier split : entraînement (70%) et reste (30%)
         X_train, X_temp, y_train, y_temp = train_test_split(
