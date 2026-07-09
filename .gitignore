@@ -1,0 +1,50 @@
+# Environnement virtuel
+venv/
+.env/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+*.so
+
+# Notebooks (sorties)
+notebooks/.ipynb_checkpoints/
+
+# Données
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Tests
+.coverage
+htmlcov/
+.pytest_cache/
+
+# ML
+mlruns/
+*.joblib
+*.pkl
+*.h5
